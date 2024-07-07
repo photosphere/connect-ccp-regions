@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="UTF-8" />
+  <script src="https://cdn.jsdelivr.net/npm/amazon-connect-streams@2.14.3/release/connect-streams.js"></script>
+</head>
+<!-- Add the call to init() as an onload so it will only run once the page is loaded -->
+
+<body onload="init()">
+  <div id="container-div" style="width: 400px; height: 600px"></div>
+  <script type="text/javascript">
+    var containerDiv = document.getElementById("container-div");
+
+    var instanceURL = "https://connect-us-1.my.connect.aws/ccp-v2/";
+
+    // initialize the streams api
+    function init() {
+      window.localStorage.removeItem(
+        "connectPopupManager::connect::loginPopup"
+      );
+
+      initialize();
+
+      try {
+        // initialize the ccp
+        connect.core.initCCP(containerDiv, {
+          ccpUrl: instanceURL, // REQUIRED
+          loginPopup: true, // optional, defaults to `true`
+          loginPopupAutoClose: true, // optional, defaults to `false`
+          loginOptions: {
+            // optional, if provided opens login in new window
+            autoClose: true, // optional, defaults to `false`
+            height: 600, // optional, defaults to 578
+            width: 400, // optional, defaults to 433
+            top: 0, // optional, defaults to 0
+            left: 0, // optional, defaults to 0
+          },
+          softphone: {
+            // optional, defaults below apply if not provided
+            allowFramedSoftphone: true, // optional, defaults to false
+            disableRingtone: false, // optional, defaults to false
+          },
+          pageOptions: {
+            //optional
+            enableAudioDeviceSettings: false, //optional, defaults to 'false'
+            enablePhoneTypeSettings: true, //optional, defaults to 'true'
+          },
+          ccpAckTimeout: 5000, //optional, defaults to 3000 (ms)
+          ccpSynTimeout: 3000, //optional, defaults to 1000 (ms)
+          ccpLoadTimeout: 10000, //optional, defaults to 5000 (ms)
+        });
+      } catch (err) {
+        console.error(logStamp("initCCP"), err);
+      }
+
+      connect.contact(subscribeToContactEvents);
+
+      connect.agent(subscribeToAgentEvents);
+    }
+
+    function subscribeToContactEvents(c) {
+      c.onConnecting(function (c) {
+        console.log("Contact ringing");
+      });
+
+      c.contact.onConnected(function (c) {
+        console.log("Contact connected to agent");
+
+      });
+    }
+
+    function subscribeToAgentEvents(agent) {
+      console.log("Agent login");
+
+      agent.onStateChange((event) => {
+      });
+
+      agent.onOffline((event) => {
+      });
+    }
+
+    // AWS functions start
+
+    function initialize() {
+    }
+  </script>
+</body>
+
+</html>
