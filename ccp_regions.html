@@ -117,10 +117,13 @@
     function toggleSelection(event) {
       const checkbox = event.target;
       checkbox.parentNode.classList.toggle('active');
+      const containerId = checkbox.id.split("-")[1]
+      const page = checkbox.value;
       if (checkbox.checked) {
-        const containerId = checkbox.id.split("-")[1]
-        const page = checkbox.value;
         AddFrame(containerId, page);
+      }
+      else {
+        Terminate(containerId);
       }
     }
 
@@ -301,13 +304,13 @@
     }
 
     function CreateIframe(divId, srcHtml) {
-      var frame = document.createElement("iframe");
+      const frame = document.createElement("iframe");
       frame.allow = "microphone; autoplay; clipboard-write";
       frame.style = "width:400px;height:600px;margin:0;border:0;padding:0px;";
       frame.scrolling = "no";
       frame.src = srcHtml;
 
-      var containerDiv = document.getElementById(divId);
+      const containerDiv = document.getElementById(divId);
       containerDiv.append(frame);
 
       SetCCPVisible(divId, "none");
@@ -315,10 +318,12 @@
       return frame;
     }
 
-    function Terminate() {
-      var containerDiv = document.getElementById("container-div");
-      connect.core.terminate();
-      var iframe = containerDiv.firstElementChild; // assumes there's nothing else in the container
+    function Terminate(display) {
+      const frame = window.ccps.frames[display];
+      frame.contentWindow.connect.core.terminate();
+
+      const containerDiv = window.ccps.containers[display];
+      const iframe = containerDiv.firstElementChild; // assumes there's nothing else in the container
       containerDiv.removeChild(iframe);
     }
 
