@@ -251,7 +251,10 @@
 
     function subscribeToContactEvents(c) {
       c.onConnecting(function (c) {
-        window.contact = c;
+        if (!window.contact) {
+          window.contact = c;
+          syncAgentsState('Offline');
+        }
       });
 
       c.onConnected(function (c) {
@@ -261,6 +264,7 @@
 
       c.onDestroy(function (c) {
         window.contact = null;
+        syncAgentsState('Available');
       });
     }
 
@@ -301,6 +305,16 @@
           failure: function () { },
         });
       } catch (error) { }
+    }
+
+    function syncAgentsState(status) {
+      for (const key in window.agents) {
+        const otherAgent = window.agents[key];
+        const agentState = otherAgent.getState();
+        if (status != agentState.name) {
+          SetAgentStatus(otherAgent, status);
+        }
+      };
     }
 
     function CreateIframe(divId, srcHtml) {
